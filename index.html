@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔓 Uncensored AI - Ask Anything</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container { max-width: 800px; margin: 0 auto; width: 100%; }
+        
+        /* Header */
+        header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #222;
+        }
+        h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        .tagline { color: #888; font-size: 0.9rem; }
+        
+        /* Usage Counter */
+        .usage-bar {
+            padding: 15px 20px;
+            background: #111;
+            border-bottom: 1px solid #222;
+        }
+        .usage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .usage-count { color: #f39c12; font-weight: bold; }
+        .progress-bar {
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f39c12, #e74c3c);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* Chat Area */
+        .chat-area { flex: 1; padding: 20px; overflow-y: auto; }
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message.user { text-align: right; }
+        .message.bot { text-align: left; }
+        .message-content {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+        .message.user .message-content {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff;
+        }
+        .message.bot .message-content {
+            background: #1a1a1a;
+            color: #eee;
+            border: 1px solid #333;
+        }
+        .message.system .message-content {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: #f39c12;
+            text-align: center;
+            max-width: 100%;
+            font-size: 0.9rem;
+        }
+        
+        /* Typing Indicator */
+        .typing { display: none; padding: 10px; }
+        .typing.active { display: block; }
+        .typing span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #f39c12;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite;
+        }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+        
+        /* Input Area */
+        .input-area {
+            padding: 20px;
+            background: #111;
+            border-top: 1px solid #222;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid #333;
+            border-radius: 25px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+        }
+        input:focus { border-color: #f39c12; }
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            color: #fff;
+        }
+        .btn-primary:hover { transform: scale(1.05); }
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+        }
+        .btn-secondary:hover { background: #444; }
+        
+        /* Image Gen */
+        .image-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Upgrade Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            border: 1px solid #333;
+            animation: popIn 0.3s ease;
+        }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal h2 { margin-bottom: 15px; color: #f39c12; }
+        .modal p { color: #888; margin-bottom: 20px; }
+        .price { font-size: 3rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .price span { font-size: 1rem; color: #888; }
+        .features { text-align: left; margin: 20px 0; }
+        .features li { padding: 8px 0; color: #ccc; }
+        .features li::before { content: "✓"; color: #27ae60; margin-right: 10px; }
+        
+        /* Image Result */
+        .image-result {
+            margin: 20px 0;
+        }
+        .image-result img {
+            max-width: 100%;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 15px;
+            text-align: center;
+            color: #444;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔓 Uncensored AI</h1>
+            <p class="tagline">Ask anything. Generate images. No filters.</p>
+        </header>
+        
+        <div class="usage-bar">
+            <div class="usage-info">
+                <span>Free Questions Remaining: <strong class="usage-count" id="usageCount">2</strong></span>
+                <span id="usageStatus">Unlimited</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+        
+        <div class="chat-area" id="chatArea">
+            <div class="message system">
+                <div class="message-content">
+                    👋 Welcome! You have <strong>2 free questions</strong>.<br>
+                    Upgrade for unlimited questions + image generation.
+                </div>
+            </div>
+        </div>
+        
+        <div class="typing" id="typingIndicator">
+            <span></span><span></span><span></span>
+        </div>
+        
+        <div class="input-area">
+            <div class="input-container">
+                <button class="btn-secondary image-btn" onclick="generateImage()">
+                    🎨 Image
+                </button>
+                <input type="text" id="userInput" placeholder="Ask anything..." onkeypress="handleKeyPress(event)">
+                <button class="btn-primary" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+        
+        <footer>
+            By continuing, you agree to our Terms of Service
+        </footer>
+    </div>
+    
+    <!-- Upgrade Modal -->
+    <div class="modal" id="upgradeModal">
+        <div class="modal-content">
+            <h2>🔓 Upgrade to Unlimited</h2>
+            <p>You've used your free questions. Get unlimited access + image generation!</p>
+            <div class="price">$10<span>/month</span></div>
+            <ul class="features">
+                <li>Unlimited questions</li>
+                <li>Image generation (10/day)</li>
+                <li>Faster responses</li>
+                <li>No watermarks</li>
+            </ul>
+            <button class="btn-primary" onclick="alert('Stripe checkout would open here!')" style="width: 100%;">
+                Upgrade Now
+            </button>
+            <p style="margin-top: 15px; font-size: 0.85rem;">
+                <a href="#" onclick="closeModal(); return false;" style="color: #888;">Maybe later</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_ENDPOINT = '/api/chat';
+        const IMAGE_ENDPOINT = '/api/image';
+        const FREE_LIMIT = 2;
+        
+        // State
+        let usage = parseInt(localStorage.getItem('uncensored_usage') || '2');
+        let isPaid = localStorage.getItem('uncensored_paid') === 'true';
+        let chatHistory = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUsageDisplay();
+            loadChatHistory();
+        });
+        
+        function updateUsageDisplay() {
+            const countEl = document.getElementById('usageCount');
+            const statusEl = document.getElementById('usageStatus');
+            const progressEl = document.getElementById('progressFill');
+            
+            if (isPaid) {
+                countEl.textContent = '∞';
+                statusEl.textContent = 'Premium';
+                progressEl.style.width = '100%';
+            } else {
+                countEl.textContent = usage;
+                statusEl.textContent = `${FREE_LIMIT - usage}/${FREE_LIMIT} free`;
+                progressEl.style.width = `${((FREE_LIMIT - usage) / FREE_LIMIT) * 100}%`;
+            }
+        }
+        
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Check limits
+            if (!isPaid && usage <= 0) {
+                showUpgradeModal();
+                return;
+            }
+            
+            // Add user message
+            addMessage('user', message);
+            input.value = '';
+            
+            // Update usage
+            if (!isPaid) {
+                usage--;
+                localStorage.setItem('uncensored_usage', usage.toString());
+                updateUsageDisplay();
+            }
+            
+            // Show typing
+            document.getElementById('typingIndicator').classList.add('active');
+            
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message,
+                        history: chatHistory.slice(-10)
+                    })
+                });
+                
+                const data = await response.json();
+                addMessage('bot', data.response);
+                
+                // Check if should show upgrade
+                if (!isPaid && usage === 0) {
+                    setTimeout(showUpgradeModal, 1000);
+                }
+            } catch (error) {
+                // Fallback: Simulated response for demo
+                addMessage('bot', generateFallbackResponse(message));
+            }
+            
+            document.getElementById('typingIndicator').classList.remove('active');
+        }
+        
+        function addMessage(role, content) {
+            const chatArea = document.getElementById('chatArea');
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+            div.innerHTML = `<div class="message-content">${content}</div>`;
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            
+            chatHistory.push({ role, content });
+            localStorage.setItem('uncensored_chat', JSON.stringify(chatHistory));
+        }
+        
+        function loadChatHistory() {
+            const saved = localStorage.getItem('uncensored_chat');
+            if (saved) {
+                chatHistory = JSON.parse(saved);
+                chatHistory.forEach(msg => {
+                    if (msg.role !== 'system') {
+                        addMessage(msg.role, msg.content);
+                    }
+                });
+            }
+        }
+        
+        async function generateImage() {
+            if (!isPaid && usage <= 0) {
+                showUpgradeModal();
+                return;
+            }
+            
+            const prompt = prompt('What image do you want to generate?');
+            if (!prompt) return;
+            
+            addMessage('user', `🎨 Generate: ${prompt}`);
+            document.getElementById('typingIndicator').classList.add('active');
+            
+            try {
+                const response = await fetch(IMAGE_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                const data = await response.json();
+                if (data.image) {
+                    addMessage('bot', `<div class="image-result"><img src="${data.image}" alt="Generated image"></div>`);
+                } else {
+                    addMessage('bot', 'Image generation demo mode. Configure API for real images.');
+                }
+            } catch (error) {
+                addMessage('bot', '🖼️ Image generation: Configure HuggingFace/Leonardo API for real images.');
+            }
+            
+            document.getElementById('typingIndicator').classList.remove('active');
+        }
+        
+        function showUpgradeModal() {
+            document.getElementById('upgradeModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('upgradeModal').classList.remove('active');
+        }
+        
+        function generateFallbackResponse(message) {
+            const responses = [
+                `That's an interesting question about "${message.substring(0, 30)}..."`,
+                `Here's what I think about "${message.substring(0, 20)}..."`,
+                `"${message}" - let me share my perspective on this.`,
+                `Great question! Here's my take on "${message.substring(0, 25)}..."`
+            ];
+            return responses[Math.floor(Math.random() * responses.length)] + ' [Demo mode - configure MiniMax API for real responses]';
+        }
+    </script>
+</body>
+</html>
