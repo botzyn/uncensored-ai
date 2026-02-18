@@ -209,7 +209,7 @@
     <div class="container">
         <header>
             <h1>🔓 Uncensored AI</h1>
-            <p class="tagline">Ask anything. Generate images. No filters.</p>
+            <p class="tagline">Ask anything. No filters. No login.</p>
         </header>
         
         <div class="usage-bar">
@@ -226,7 +226,7 @@
             <div class="message system">
                 <div class="message-content">
                     👋 Welcome! You have <strong>2 free questions</strong>.<br>
-                    Upgrade for unlimited questions + image generation.
+                    Ask anything. No filters. No login.
                 </div>
             </div>
         </div>
@@ -253,16 +253,16 @@
     <!-- Upgrade Modal -->
     <div class="modal" id="upgradeModal">
         <div class="modal-content">
-            <h2>🔓 Upgrade to Unlimited</h2>
-            <p>You've used your free questions. Get unlimited access + image generation!</p>
+            <h2>🔓 Unlimited Access</h2>
+            <p>You hit the limit. Upgrade for unlimited uncensored questions.</p>
             <div class="price">$10<span>/month</span></div>
             <ul class="features">
                 <li>Unlimited questions</li>
-                <li>Image generation (10/day)</li>
-                <li>Faster responses</li>
-                <li>No watermarks</li>
+                <li>Real AI responses</li>
+                <li>No login required</li>
+                <li>Cancel anytime</li>
             </ul>
-            <button class="btn-primary" onclick="alert('Stripe checkout would open here!')" style="width: 100%;">
+            <button class="btn-primary" onclick="alert('Stripe checkout coming soon!')" style="width: 100%;">
                 Upgrade Now
             </button>
             <p style="margin-top: 15px; font-size: 0.85rem;">
@@ -429,7 +429,7 @@
                 `"${message}" - let me share my perspective on this.`,
                 `Great question! Here's my take on "${message.substring(0, 25)}..."`
             ];
-            return responses[Math.floor(Math.random() * responses.length)] + ' [Demo mode - configure MiniMax API for real responses]';
+            return responses[Math.floor(Math.random() * responses.length)] + ' [Demo mode - configure GROQ_API for real responses]';
         }
     </script>
 </body>
