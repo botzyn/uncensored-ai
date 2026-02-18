@@ -273,7 +273,8 @@
 
     <script>
         // Configuration
-        const API_ENDPOINT = '/api/chat';
+        // Use Vercel API when deployed, fallback to local for dev
+        const API_ENDPOINT = window.location.hostname === 'localhost' ? 'http://localhost:3000/api/chat' : '/api/chat';
         const IMAGE_ENDPOINT = '/api/image';
         const FREE_LIMIT = 2;
         
